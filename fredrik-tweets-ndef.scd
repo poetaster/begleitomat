@@ -42,21 +42,25 @@ x = a.asStream;
 
 //r{99.do{|i|x={Pan2.ar(SinOsc.ar(i+1,SinOsc.ar((i%9).div(3)*100+(i%9)+500),0.03),1.0.rand2)}.play;2.wait;x.release(25)}}.play
 
+(
+//setup
 n = NdefGui.new;
 o = NdefGui.new;
-
-(
-Ndef(\x).fadeTime = 5;
 Ndef(\x).play;
 Ndef(\y).play;
-
-Ndef(\x, { |i=1 |
-	//var e = Env.adsr(fadeTime, 0.01, 0.4, fadeTime).ar(2, gate);
-	y={ Pan2.ar( SinOsc.ar(i+1, SinOsc.ar( (i%9).div(3)*100+(i%9)+500),0.03) * 4  ,1.0.rand2)}});
-
 n.object_(Ndef(\x));
 o.object_(Ndef(\y));
 )
+
+(
+Ndef(\x).fadeTime = 5;
+Ndef(\x, { |i=1 |
+	//var e = Env.adsr(fadeTime, 0.01, 0.4, fadeTime).ar(2, gate);
+	y={ Pan2.ar( SinOsc.ar(i+1, SinOsc.ar( (i%9).div(3)*100+(i%9)+500),0.03) * 4  ,1.0.rand2)} } );
+Ndef(\y, { |i=1 |
+	z={ Pan2.ar(BPF.ar(Impulse.ar(18.linrand+0.5),9999.linrand,0.3.linrand,5)*3.0,1.0.rand2)} } );
+)
+
 (
 a = Task({
     99.do({ arg i;
@@ -90,8 +94,8 @@ b = Task({
 b.start;
 )
 
-a.stop;
-a.start;
+b.stop;
+b.start;
 
 //--tweet0003 metalic whips and blips
 //r{loop{x=play{t=SinOsc.ar(999.rand).abs;Formlet.ar(TDuty.ar(t,0,t),4e3.linrand,t,1-t)!2};wait(9.rand+1);x.release(39)}}.play//#SuperCollider
@@ -120,8 +124,8 @@ c.start;
 Ndef(\y).fadeTime = 2;
 Ndef(\y).play;
 d = Task({
-    99.do({ arg g;
-        Ndef(\y).map(\s, g);
+    99.do({ arg i;
+        Ndef(\y).map(\s, i);
 		Ndef(\y, { z=20.rand+6;x={ y=LFTri.ar(z).abs/9/z;RLPF.ar(TDuty.ar(y,0,y),z*600,0.06,9)!2}} );
 		//Ndef(\x).fadeTime = 2;
         wait(26-z);
@@ -139,8 +143,8 @@ d.start;
 (
 Ndef(\x).fadeTime = 3;
 e = Task({
-    99.do({ arg g;
-        Ndef(\x).map(\s, g);
+    39.do({ arg i;
+        Ndef(\x).map(\s, i);
 		Ndef(\x, { z=60.rand+1;x={y=LFTri.ar(z).abs/z;RLPF.ar(TDuty.ar(y,0,y),z*99+y,0.01,6+y)!2}} );
 		Ndef(\x).fadeTime = z/3;
         wait(z/3);
@@ -152,14 +156,14 @@ e.stop;
 e.start;
 
 //--tweet0006 Blows up in original with reverb. works well with 0005
-r{loop{x={	MoogFF.ar(ClipNoise.ar*0.4,LFPar.kr({0.3.rand}!2,0,600,990))}.play(s,0,19);1.wait;x.release}}.play//#SuperCollider
+//r{loop{x={	MoogFF.ar(ClipNoise.ar*0.4,LFPar.kr({0.3.rand}!2,0,600,990))}.play(s,0,19);1.wait;x.release}}.play//#SuperCollider
 
 (
-Ndef(\y).fadeTime = 2;
+Ndef(\y).fadeTime = 5;
 Ndef(\y).play;
 f = Task({
-    99.do({ arg g;
-        Ndef(\y).map(\s, g);
+    99.do({ arg i;
+        Ndef(\y).map(\s, i);
 		Ndef(\y, { MoogFF.ar(ClipNoise.ar*0.4,LFPar.kr({0.3.rand}!2,0,600,990))} );
         1.wait;
     });
@@ -170,22 +174,222 @@ f.stop;
 f.start;
 
 //--tweet0007 nice room plucked instrument with strums and nice growing druming.
-r{loop{x={BPF.ar(Pluck.ar(Crackle.ar([1.9,1.8]),Impulse.ar(5.rand+1),0.05,0.05.linrand),1200.rand)}.play(s,0,9);wait(9);x.release(69)}}.play
+//r{loop{x={BPF.ar(Pluck.ar(Crackle.ar([1.9,1.8]),Impulse.ar(5.rand+1),0.05,0.05.linrand),1200.rand)}.play(s,0,9);wait(9);x.release(69)}}.play
+
+(
+Ndef(\x).fadeTime = 30;
+Ndef(\x).play;
+g = Task({
+    50.do({ arg i;
+        Ndef(\x).map(\s, i);
+		Ndef(\x, { BPF.ar(Pluck.ar(Crackle.ar([1.9,1.8]),Impulse.ar(5.rand+1),0.05,0.05.linrand),1200.rand)*5} );
+        9.wait;
+    });
+});
+g.start;
+)
+g.stop;
+g.start;
+
+//--tweet0028 another fibonacci tune (beeping)
+//play{MoogFF.ar(LFTri.ar(CombN.ar(Duty.ar(1/8,0,Dseq(Dshuf(List.fib(16)%8*99,8),inf)),4,4,16))/4,LFTri.kr(1/16,0,2e3,3e3))!2}//#SuperCollider
+
+(
+Ndef(\y).fadeTime = 1;
+Ndef(\y).play;
+h = Task({
+    20.do({ arg i;
+       Ndef(\y, {MoogFF.ar(LFTri.ar(
+			CombN.ar(
+				Duty.ar(1/8,0,Dseq(Dshuf(
+					List.fib(16)%8*99,8),inf)),4,4,16))/4,LFTri.kr(1/16,0,2e3,3e3))!2} );
+    });
+});
+h.start;
+)
+h.stop;
+h.start;
+
+//--tweet0030 horns on VarSaws through verb.
+//play{a=LFPar;GVerb.ar(VarSaw.ar(a.ar(1,0,5,a.ar([0.05,0.04],0,50,160).round(50)),0,a.ar(0.2,0,0.5,a.ar(3,0,0.2,0.5)))/8,80)}//#SuperCollider
+
+// you can just cut in one while the others are running on loop
+(
+Ndef(\x).fadeTime = 3;
+i = Task({
+    50.do({ arg i;
+		Ndef(\x, {a=LFPar;
+			GVerb.ar(
+				VarSaw.ar(a.ar(1,0,5,a.ar([0.05,0.04],0,50,160).round(50)),0,a.ar(0.2,0,0.5,a.ar(3,0,0.2,0.5)))/8,80)} );
+    });
+});
+i.start;
+)
+i.stop;
+i.start;
+
+
+//--tweet0032 drone with ticks
+//{Splay.ar({|i|l=LFTri.ar(1/6,i/1.5,2.5,3.5).round;SinOsc.ar(142.857*l,lag(l,i-3/6),1-poll(0.142857*l,10/6,"\t\t"))}!6)}.play//#SuperCollider
+
+(
+Ndef(\x).fadeTime = 3;
+j = Task({
+    20.do({ arg i;
+		Ndef(\x, {
+			Splay.ar({|i|l=LFTri.ar(1/6,i/1.5,2.5,3.5).round;
+				SinOsc.ar(142.857*l,lag(l,i-3/6),1-poll(0.142857*l,10/6,"\t\t"))}!6)});
+  });
+});
+j.start;
+)
+j.stop;
+j.start;
+
+
+//--tweet0033 Noise rock combine with the VarSaws in 030!
+//play{f=LFPar.ar(1/14).round*20+80;Splay.ar(LFPar.ar({|i|[i+1*f,i*f+(i+1/3)]}!4)>BrownNoise.ar(Pulse.ar({|i|i+1}!4,0.35))/3)}//#SuperCollider
+
+(
+Ndef(\y).fadeTime = 3;
+Ndef(\y).play;
+k = Task({
+    50.do({ arg i;
+		Ndef(\y, {
+			f=LFPar.ar(1/14).round*20+80;Splay.ar(
+				LFPar.ar({|i|[i+1*f,i*f+(i+1/3)]}!4)>BrownNoise.ar(Pulse.ar({|i|i+1}!4,0.35))/3) });
+  });
+});
+k.start;
+)
+k.stop;
+k.start;
+
+//--tweet0036 ohm song.
+//play{Splay.ar({|i|SinOsc.ar(i+SinOsc.ar(0.01,a=pi/[2,4,8]@@i,0.1,1)*80+SinOsc.ar(i+1*1e-4+i),a,SinOsc.ar(i+1*1e-3,a)/4)}!9)}//#SuperCollider
+
+(
+Ndef(\x).fadeTime = 3;
+Ndef(\x).play;
+l = Task({
+    50.do({ arg i;
+		Ndef(\x, {
+			Splay.ar( {|i| SinOsc.ar(i+SinOsc.ar(0.01,a=pi/[2,4,8]@@i,0.1,1)*80+SinOsc.ar(i+1*1e-4+i),a,SinOsc.ar(i+1*1e-3,a)/4) }!9) });
+  });
+});
+l.start;
+)
+l.stop;
+l.start;
+a.stop;
+
+
+//--tweet0037 caliope on crack!
+//play{a=LFCub;n=8;Splay.ar(a.ar({|i|pow(i+1,a.kr(1/n,i/n,1/n,1))}!n*150,0,a.kr({|i|pow(i+1,a.kr(i+0.5/n,i/n))}!n).max(0))/4)}//#SuperCollider
+
+(
+Ndef(\y).fadeTime = 3;
+Ndef(\y).play;
+m = Task({
+    50.do({ arg i;
+		Ndef(\y, {
+			a=LFCub;n=8;
+			Splay.ar(a.ar({|i|pow(i+1,a.kr(1/n,i/n,1/n,1))}!n*150,0,a.kr({|i|pow(i+1,a.kr(i+0.5/n,i/n))}!n).max(0))/4) });
+  });
+});
+m.start;
+)
+m.stop;
+m.start;
+
+
+//--tweet0038 funky boing rythm pingpong
+//play{PingPong.ar(LocalBuf(3e4,2).clear,Ringz.ar(CuspN.ar*Impulse.kr([9,8]/12)/9,LFPar.kr(1/[3,2]).range(51,[99,17])*9),0.5)}//#SuperCollider
+(
+Ndef(\y).fadeTime = 2;
+Ndef(\y).play;
+n = Task({
+    50.do({ arg i;
+		Ndef(\y, {
+			PingPong.ar(LocalBuf(3e4,2).clear,Ringz.ar(CuspN.ar*Impulse.kr([9,8]/12)/9,LFPar.kr(1/[3,2]).range(51,[99,17])*9),0.5) });
+  });
+});
+n.start;
+)
+n.stop;
+n.start;
+
+//--tweet0050 clonky percussion exploration. play with 51
+//play{a=Saw;b=(2..12);c=0.015;GVerb.ar(Splay.ar(Klank.ar(`[b*50+b,c,c],Hasher.ar(a.ar(b/4pi,a.ar(c)*b+b).ceil)))/9,5.rand+1)}//#SuperCollider
+
+(
+Ndef(\x).fadeTime = 1;
+Ndef(\x).play;
+n = Task({
+    50.do({ arg i;
+		Ndef(\x, {
+			a=Saw;b=(2..12);c=0.015;GVerb.ar(Splay.ar(Klank.ar(`[b*50+b,c,c],Hasher.ar(a.ar(b/4pi,a.ar(c)*b+b).ceil)))/9,5.rand+1) });
+  });
+});
+n.start;
+)
+n.stop;
+n.start;
+
+
+//--tweet0051 mix with 50 above
+//play{a=Saw;GVerb.ar(Splay.ar(BBandPass.ar(a.ar("sunday".ascii),a.ar(9/"slow".ascii)*400+500,a.ar(7/"coding".ascii)+1.1)/5))}//#SuperCollider
+
+(
+Ndef(\y).fadeTime = 1;
+Ndef(\y).play;
+n = Task({
+    50.do({ arg i;
+		Ndef(\y, {		a=Saw;
+		GVerb.ar(
+				Splay.ar(BBandPass.ar(a.ar("sunday".ascii),a.ar(9/"slow".ascii)*400+500,a.ar(7/"coding".ascii)+1.1)/5))});
+  });
+});
+n.start;
+)
+n.stop;
+n.start;
+
+
+//--tweet0054 hardcore techno.!!!
+play{CombN.ar(SyncSaw.ar(Saw.ar([3,4],32,64),Saw.ar([4,3],99,Duty.kr(1,0,flop(Dseq(2!6++4++3,99)*(4**(0..4))))))/9,1,1/6,2)}//#SuperCollider
+
+
+
+//--tweet0060 (play with 0064?)
+a=LFSaw;play{FreeVerb.ar(CombN.ar(VarSaw.ar(a.ar([32,48],0,42*a.ar(1/[16,24]),8),0,a.ar([18,12],0,1/64,1/64)).sin/2,1,1,2))}//#SuperCollider
+
+//--tweet0064 funky beep bops with bass acc.
+format(a="play{GVerb.ar(SinOsc.ar(0,SinOsc.ar(Duty.ar(1/8,0,Dseq("+($%!16)+",inf))))/8,20,1/8)}",*a.ascii.midicps).interpret//#SuperCollider
+
+//--tweet0065 mix with 0064 wra, wra
+format(a="play{SinOsc.ar(%/[%,%],LPF.ar(LFSaw.ar(Duty.ar(16/%,0,Dseq("+($%!96)+",inf)),%),%,%))}",*a.ascii).postln.interpret//#SuperCollider
+
+// other
 
 //--tweet0008 slight storm
-play{x=LFNoise1.ar(0.5!2);Formlet.ar(Crackle.ar(x.range(1.8,1.98)),TExpRand.ar(200,2e3,x).lag(2),x.range(5e-4,1e-3),0.0012)}//#SuperCollider
+//play{x=LFNoise1.ar(0.5!2);Formlet.ar(Crackle.ar(x.range(1.8,1.98)),TExpRand.ar(200,2e3,x).lag(2),x.range(5e-4,1e-3),0.0012)}//#SuperCollider
+
 
 //--tweet0009 chamber quartet (modified to use i for amp at 0.01 and 3,6,9 choose instead of 9 - works well with 6 for ambience.
-{|i|x=i+6.rand;Pbind(\dur,0.06,\sustain,1,\amp,i/100,\degree, Pgauss(x,sin(x+Ptime()%[3,6,9].choose/6e3)*9),\pan,Pkey(\degree)-x*[3,6,9].choose).play}!6//#SuperCollider
+//{|i|x=i+6.rand;Pbind(\dur,0.06,\sustain,1,\amp,i/100,\degree, Pgauss(x,sin(x+Ptime()%[3,6,9].choose/6e3)*9),\pan,Pkey(\degree)-x*[3,6,9].choose).play}!6//#SuperCollider
+
+
 
 //--tweet0010 duck dj ducks.
-play{a=SinOsc;LeakDC.ar(a.ar(a.ar(0.31),a.ar(a.ar(0.21),a.ar(a.ar(0.11,a.ar(0.01)),0,a.ar([2,3],0,400))),a.ar([0.3,0.21])))}//#SuperCollider
+//play{a=SinOsc;LeakDC.ar(a.ar(a.ar(0.31),a.ar(a.ar(0.21),a.ar(a.ar(0.11,a.ar(0.01)),0,a.ar([2,3],0,400))),a.ar([0.3,0.21])))}//#SuperCollider
 
 //--tweet0011 whirring large wasps coming to and fro
-play{f={|o,i|if(i>0,{SinOsc.ar([i,i+1e-4]**2*f.(o,i-1),f.(o,i-1)*1e-4,f.(o,i-1))},o)};f.(60,6)/60}//#SuperCollider
+//play{f={|o,i|if(i>0,{SinOsc.ar([i,i+1e-4]**2*f.(o,i-1),f.(o,i-1)*1e-4,f.(o,i-1))},o)};f.(60,6)/60}//#SuperCollider
 
 //--tweet0012 blips and bleeps
-r{loop{Document.current.text[0..z].do{|x|z=x.ascii;play{Blip.ar(z/3,z,Line.kr(3,0,3/z,1,0,2))!2};wait(1/z)}}}.play(AppClock)//#SuperCollider
+//r{loop{Document.current.text[0..z].do{|x|z=x.ascii;play{Blip.ar(z/3,z,Line.kr(3,0,3/z,1,0,2))!2};wait(1/z)}}}.play(AppClock)//#SuperCollider
+
 
 //--tweet0013
 a=play{|a|Saw.ar(68,a)};fork{inf.do{|i|t="";{|j|b=cos(i*cos(j**(i/1e4)));t=t++" @"[b+1]}!68;a.set(\a,b);t.postcs;0.01.wait}}//#SuperCollider
@@ -202,6 +406,7 @@ play{b=LocalBuf(9e4,2).clear;i=Sweep.ar(BufRd.ar(2,b,Saw.ar(12,3e4,4e4)),9e4);Bu
 //--tweet0017 trio of swinging metals and finger snaps, thigh claps
 play{b=LocalBuf(8e4,2).clear;i=Sweep.ar(BufRd.ar(2,b,Saw.ar(3.1,4e4,4e4)),8e4);BufWr.ar(Blip.ar([2,3]),b,i);BufRd.ar(2,b,i)}//#SuperCollider
 
+
 //--tweet0018 put, de putt, put, di putt, put
 play{b=LocalBuf(5e3,2).clear;i=Sweep.ar(BufRd.ar(2,b,Saw.ar(50,2e3,5e3)),6e4);BufWr.ar(Saw.ar([4,3]),b,i);BufRd.ar(2,b,i)/6}//#SuperCollider
 
@@ -210,7 +415,7 @@ play{b=LocalBuf(1e4,2).clear;i=Sweep.ar(BufRd.ar(2,b,Saw.ar(1,2e3,5e3)),5e5);Buf
 
 //--tweet0020 arrpegios ahoi
 play{a=LFPulse;b=(1..4);Mix(a.ar(a.ar(a.ar(a.ar(b/32)+1/8)+1*b)+(Mix(a.ar(b/64))+a.ar(4/b)*(a.ar(a.ar(b/8))*2+b))*100))/8!2}//#SuperCollider
-
+// sadly not as ndef
 
 //--tweet0021 dry washboard and lasers.
 r{{|j|a=play{sin(Decay.ar(Duty.ar(1/50,0,Dseq(flat({|i|asBinaryDigits(j+1*i)}!8),4),2),j+1*0.008))/2!2};5.12.wait}!256}.play//#SuperCollider
@@ -233,8 +438,9 @@ play{Splay.ar({|i|f=i+5*99;RHPF.ar(Ringz.ar(Ball.ar(Saw.ar(i+1)>0,SinOsc.kr(0.1,
 //--tweet0027 really nice noise
 play{GVerb.ar(ceil(In ar:8*4+4)-4/10)};Pbind(\dur,2,\legato,Pgeom(0.5,1.1),\degree,Pseq(List fib:8+[[1,4]]-9,9),\out,8).play//#SuperCollider
 
-//--tweet0028 another fibonacci tune (beeping)
-play{MoogFF.ar(LFTri.ar(CombN.ar(Duty.ar(1/8,0,Dseq(Dshuf(List.fib(16)%8*99,8),inf)),4,4,16))/4,LFTri.kr(1/16,0,2e3,3e3))!2}//#SuperCollider
+
+
+
 
 //--tweet0029 also fibonacci series of ringing rings colliding
 play{{|i|CombC.ar(In.ar(8),3+i,LFTri.ar(0.5,0,1,2+i),99)}!2};Pbind(\out,8,\note,Pstutter(8,Pseq(List.fib(32)%9/3,inf))).play//#SuperCollider
@@ -273,8 +479,24 @@ play{a=SinOsc;Splay.ar({|i|i=i+1;a.ar(a.ar(i)+1**a.ar(2**a.ar(i/500)*(9-i))*a.ar
 //--tweet0040
 a={play{|b|LFTri.ar(b+69)}}!3;fork{inf.do{|i|x=sin(sin(i/99)*i/(i%3+68))*34+34;a[i%3].set(1,x);join($.!x).postln;0.01.wait}}//#SuperCollider
 
+
+
+
 //--tweet0041
 play{o=SinOsc.ar(1/RunningMax.ar(Sweep.ar(LocalIn.ar(6)),Impulse.ar([1,0.749,6,12,3,4])));LocalOut.ar(o);Splay.ar(o).tanh/2}//#SuperCollider
+
+//--tweet0048
+play{a=Impulse;b=SinOsc;c=b.ar(0,BRF.ar(a.ar([7,8]),a.ar(9).lag2(1e-3),1.5,2pi));Ringz.ar(c,b.ar(0.02,0,99,150),1/9)+c*0.5}//#SuperCollider
+
+//--tweet0050 clonky percussion exploration.
+play{a=Saw;b=(2..12);c=0.015;GVerb.ar(Splay.ar(Klank.ar(`[b*50+b,c,c],Hasher.ar(a.ar(b/4pi,a.ar(c)*b+b).ceil)))/9,5.rand+1)}//#SuperCollider
+
+//--tweet0051 mix with 50 above
+play{a=Saw;GVerb.ar(Splay.ar(BBandPass.ar(a.ar("sunday".ascii),a.ar(9/"slow".ascii)*400+500,a.ar(7/"coding".ascii)+1.1)/5))}//#SuperCollider
+
+//--tweet0054 hardcore techno.!!!
+play{CombN.ar(SyncSaw.ar(Saw.ar([3,4],32,64),Saw.ar([4,3],99,Duty.kr(1,0,flop(Dseq(2!6++4++3,99)*(4**(0..4))))))/9,1,1/6,2)}//#SuperCollider
+
 
 //--tweet0042
 play{c=[97,99];l=3**9;a=LocalBuf(l,2).clear;BufWr.ar(Saw.ar(c/5),a,BPF.ar(VarSaw.ar(c),98,0.1)*l);PlayBuf.ar(2,a,1/4,1,0,1)}//#SuperCollider
@@ -295,7 +517,7 @@ play{a=LFTri;GVerb.ar(Mix(Limiter.ar(BRF.ar(a.ar(50,1e-4),a.ar(a.ar([1.01,1.0111
 play{CombN.ar(Limiter.ar(BRF.ar(LFSaw.ar(10,0,0.01),LFTri.ar([5,6]*0.1))),0.1,LFTri.kr(0.1,0,0.05,0.05).round(0.01))}//#SuperCollider#SC2012
 
 //--tweet0048
-play{a=Impulse;b=SinOsc;c=b.ar(0,BRF.ar(a.ar([7,8]),a.ar(9).lag2(1e-3),1.5,2pi));Ringz.ar(c,b.ar(0.02,0,99,150),1/9)+c*0.02}//#SuperCollider
+play{a=Impulse;b=SinOsc;c=b.ar(0,BRF.ar(a.ar([7,8]),a.ar(9).lag2(1e-3),1.5,2pi));Ringz.ar(c,b.ar(0.02,0,99,150),1/9)+c*0.5}//#SuperCollider
 
 //--tweet0049 sweeps up bleeps and aaarhhhhhs.
 play{Splay.ar(SinOsc.ar(9,SinOsc.ar(midicps((Sweep.ar(0,(33..3))%128&(Sweep.ar(0,(3..9))%(LFSaw.ar(3)*9+99)))+33),0,pi)))/3}//#SuperCollider
@@ -332,6 +554,7 @@ a=LFTri;play{CombN.ar(SinOsc.ar(Saw.ar(3,128,128),Saw.ar([3,4],a.ar(a.kr(0.1,0,8
 
 //--tweet0060 (play with 0064?)
 a=LFSaw;play{FreeVerb.ar(CombN.ar(VarSaw.ar(a.ar([32,48],0,42*a.ar(1/[16,24]),8),0,a.ar([18,12],0,1/64,1/64)).sin/2,1,1,2))}//#SuperCollider
+
 
 //--tweet0061
 a=Demand;b=SinOsc;play{b.ar(a.ar(t=Saw.ar([9,9.01]),0,Dseq(0!6++500,inf)),b.ar(a.ar(t,0,Dshuf((0..7)*99,inf)).lag(0.04)))/2}//#SuperCollider
