@@ -67,7 +67,7 @@ a = Task({
         Ndef(\x).map(\i, i);
 		Ndef(\x, { Pan2.ar( SinOsc.ar(i+1, SinOsc.ar( (i%9).div(3)*100+(i%9)+500),0.03) * 4 ,1.0.rand2) } );
         2.wait;
-		Ndef(\x).fadeTime = [10,15,20].choose;
+		Ndef(\x).fadeTime = [10,15,5].choose;
     });
 });
 a.start;
@@ -323,6 +323,7 @@ n.start;
 n.stop;
 n.start;
 
+
 //--tweet0050 clonky percussion exploration. play with 51
 //play{a=Saw;b=(2..12);c=0.015;GVerb.ar(Splay.ar(Klank.ar(`[b*50+b,c,c],Hasher.ar(a.ar(b/4pi,a.ar(c)*b+b).ceil)))/9,5.rand+1)}//#SuperCollider
 
@@ -421,6 +422,40 @@ s.stop;
 s.start;
 
 
+//--tweet0069 sequence of noise gates with verb increasing room size Dnynamic! moves to white NOISE! And back
+//play{a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(LFPar.ar(4e-3).round(3e-3)/3+a)));FreeVerb2.ar(a[0],a[1],0.33,1,1,0.4)}//#SuperCollider
+
+(
+Ndef(\x).fadeTime = 9;
+Ndef(\x).play;
+a = Task({
+    10.do({ arg i;
+		Ndef(\x, {
+			a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(LFPar.ar(4e-3).round(3e-3)/3+a)));FreeVerb2.ar(a[0],a[1],0.33,1,1,0.4) });
+  });
+});
+a.start;
+)
+a.stop;
+a.start;
+
+
+//--tweet0070 like 69 without verb add them together.
+//play{a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(SinOsc.ar(3.3e-4,a*2pi).round(5e-4))));a/3+CombN.ar(a,1,[1,0.9],3,0.4)}//#SuperCollider
+
+(
+Ndef(\x).fadeTime = 9;
+Ndef(\x).play;
+b = Task({
+    10.do({ arg i;
+		Ndef(\x, {
+			a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(SinOsc.ar(3.3e-4,a*2pi).round(5e-4))));a/3+CombN.ar(a,1,[1,0.9],3,0.4) });
+  });
+});
+b.start;
+)
+b.stop;
+b.start;
 
 // other
 
@@ -637,6 +672,8 @@ play{a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(LFPar.ar(4e-3).round(3e-3)/
 
 //--tweet0070 like 69 without verb add them together.
 play{a=LocalIn.ar(2);LocalOut.ar(a=Hasher.ar(a.round(SinOsc.ar(3.3e-4,a*2pi).round(5e-4))));a/3+CombN.ar(a,1,[1,0.9],3,0.4)}//#SuperCollider
+
+
 
 //--tweet0071 whoop filter rising!
 play{a=LFTri;b=(2..5);Splay.ar(a.ar(abs(a.ar(b/9/9/9).round(a.ar(9-b*99,9-b/9,a.ar(b/9,b/99)))*a.ar(9,0,9-b*99,99*b),b/9)))}//#SuperCollider
